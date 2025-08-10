@@ -1,16 +1,20 @@
-// Load environment variables during build time
-const loadEnv = () => {
-  const env = {};
-  // This ensures that the environment variables are available at build time
-  if (process.env.NEXT_PUBLIC_CONVEX_URL) {
-    env.NEXT_PUBLIC_CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
-  }
-  return env;
-};
+import { config } from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
+// Load environment variables
+config({ path: '.env.local' });
+
+// Get the directory name in ES module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  env: loadEnv(),
+  // Ensure environment variables are available at build time
+  env: {
+    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL || 'https://abundant-wildebeest-458.convex.cloud',
+  },
   experimental: {
     turbo: {
       rules: {

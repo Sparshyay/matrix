@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Github, Twitter, Dribbble } from "lucide-react";
 
-export function Footer() {
+function Footer() {
   return (
     <footer className="border-t">
       <div className="container mx-auto max-w-6xl px-4 py-8 flex flex-col sm:flex-row items-center justify-between gap-6">
@@ -21,5 +21,7 @@ export function Footer() {
     </footer>
   );
 }
+
+export default Footer;
 
 

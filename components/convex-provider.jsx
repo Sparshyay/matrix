@@ -3,32 +3,29 @@
 import { useEffect, useState } from 'react';
 import { ConvexProvider, ConvexReactClient } from 'convex/react';
 
-// This ensures we only create the client once and reuse it
-let clientInstance = null;
-
-function getConvexClient() {
-  if (typeof window === 'undefined') return null;
-  if (!clientInstance) {
-    clientInstance = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL || '');
-  }
-  return clientInstance;
+// Create the client outside the component to ensure it's only created once
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+if (!convexUrl) {
+  console.error('NEXT_PUBLIC_CONVEX_URL is not set');
 }
 
+const convex = new ConvexReactClient(convexUrl);
+
 export default function ConvexProviderWrapper({ children }) {
-  const [client, setClient] = useState(null);
+  const [isMounted, setIsMounted] = useState(false);
   
   useEffect(() => {
-    // Initialize Convex client on the client side
-    setClient(getConvexClient());
+    // Mark that the component is mounted
+    setIsMounted(true);
   }, []);
 
-  if (typeof window === 'undefined' || !client) {
-    // Don't render children during SSR or before client is initialized
-    return <>{children}</>;
+  // Don't render children until the component is mounted
+  if (!isMounted) {
+    return null;
   }
 
   return (
-    <ConvexProvider client={client}>
+    <ConvexProvider client={convex}>
       {children}
     </ConvexProvider>
   );

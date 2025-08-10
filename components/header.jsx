@@ -7,7 +7,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
-export function Header() {
+function Header() {
   const [open, setOpen] = useState(false);
   const navLinks = [
     { href: "/", label: "Home" },
@@ -52,5 +52,7 @@ export function Header() {
     </header>
   );
 }
+
+export default Header;
 
 

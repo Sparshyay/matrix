@@ -4,30 +4,22 @@ import ThemeProvider from "@/components/theme-provider";
 import Header from "@/components/header";
 import Footer from "@/components/footer";
 import ConvexProviderWrapper from "@/components/convex-provider";
-import dynamic from 'next/dynamic';
-
-// Import components that might cause hydration issues with no SSR
-const SmoothCursor = dynamic(
-  () => import('@/components/magic/SmoothCursor'),
-  { ssr: false }
-);
-
-const BackgroundGrid = dynamic(
-  () => import('@/components/magic/BackgroundGrid'),
-  { ssr: false }
-);
+import { usePathname } from "next/navigation";
 
 export default function ClientLayout({ children }) {
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
+
   return (
     <ConvexProviderWrapper>
-      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-        <BackgroundGrid />
-        <SmoothCursor />
-        <Header />
-        <main className="min-h-[calc(100vh-200px)]">
-          {children}
-        </main>
-        <Footer />
+      <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
+        <div className="grain min-h-screen bg-[#0c0b0b] text-[#f3f1ec] selection:bg-[#d7193a] selection:text-white">
+          {!isHomePage && <Header />}
+          <main className="min-h-screen">
+            {children}
+          </main>
+          {!isHomePage && <Footer />}
+        </div>
       </ThemeProvider>
     </ConvexProviderWrapper>
   );

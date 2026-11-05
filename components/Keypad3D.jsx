@@ -390,13 +390,13 @@ export default function Keypad3D({ className = "" }) {
 
       // Chassis width is 3.5 units + bezel margin + tilt rotation ~ 4.6 units
       // Height is ~ 2.9 units
-      const reqW = 4.6;
-      const reqH = 2.9;
+      const reqW = aspect < 1 ? 5.2 : 4.6;
+      const reqH = aspect < 1 ? 3.4 : 2.9;
 
       const distH = reqW / (2 * tanHalf * aspect);
       const distV = reqH / (2 * tanHalf);
 
-      const targetDistance = Math.max(distH, distV, 6.2);
+      const targetDistance = Math.max(distH, distV, aspect < 1 ? 7.2 : 6.2);
 
       camera.position.set(0, 1.7, targetDistance);
       camera.updateProjectionMatrix();
@@ -472,35 +472,35 @@ export default function Keypad3D({ className = "" }) {
   return (
     <div className={`relative flex flex-col items-center select-none w-full ${className}`}>
       {/* Background Technical Crosshairs and Radial Grid Circle (Matching reference WebDrift image) */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
         {/* Outer Circular Coordinate Ring */}
-        <div className="w-[360px] sm:w-[460px] h-[360px] sm:h-[460px] rounded-full border border-dashed border-[#f3f1ec15] relative">
+        <div className="w-[260px] sm:w-[360px] md:w-[460px] h-[260px] sm:h-[360px] md:h-[460px] rounded-full border border-dashed border-[#f3f1ec15] relative shrink-0">
           {/* Subtle Crosshairs */}
           <div className="absolute top-1/2 left-0 right-0 h-[1px] bg-[#f3f1ec10]" />
           <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-[#f3f1ec10]" />
           {/* Coordinate Readouts */}
-          <span className="absolute -left-6 top-1/2 -translate-y-1/2 font-mono text-[10px] text-[#9c9590]">
+          <span className="absolute -left-2 sm:-left-6 top-1/2 -translate-y-1/2 font-mono text-[9px] sm:text-[10px] text-[#9c9590]">
             y {coords.y}
           </span>
-          <span className="absolute -right-6 top-1/2 -translate-y-1/2 font-mono text-[10px] text-[#9c9590]">
+          <span className="absolute -right-2 sm:-right-6 top-1/2 -translate-y-1/2 font-mono text-[9px] sm:text-[10px] text-[#9c9590]">
             x {coords.x}
           </span>
         </div>
       </div>
 
       {/* Top Figure Tag: ■ Fig. 01 · Keypad */}
-      <div className="w-full max-w-[480px] flex justify-end text-[11px] font-mono tracking-wider text-[#9c9590] mb-1 z-10 pr-4">
+      <div className="w-full max-w-[480px] flex justify-end text-[10px] sm:text-[11px] font-mono tracking-wider text-[#9c9590] mb-1 z-10 pr-2 sm:pr-4">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 bg-[#d7193a] inline-block" />
           <span>Fig. 01 · Keypad</span>
         </div>
       </div>
 
-      {/* 3D WebGL Canvas with generous bounds so keyboard is NEVER clipped */}
+      {/* 3D WebGL Canvas with responsive bounds so keyboard is NEVER clipped and touch scrolls cleanly */}
       <div
         ref={mountRef}
-        className="w-full h-[360px] sm:h-[400px] md:h-[440px] max-w-[540px] cursor-pointer relative z-10"
-        style={{ touchAction: "none" }}
+        className="w-full h-[250px] sm:h-[320px] md:h-[420px] max-w-[540px] cursor-pointer relative z-10"
+        style={{ touchAction: "pan-y" }}
       />
     </div>
   );

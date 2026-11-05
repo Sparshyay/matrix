@@ -170,26 +170,26 @@ export default function CinematicWorkStage({ onSelectProjectForInquiry }) {
   return (
     <section
       id="work"
-      className="relative min-h-screen py-24 px-4 md:px-8 bg-[#0c0b0b] text-[#f3f1ec] border-b border-[#f3f1ec15] flex flex-col justify-between overflow-hidden"
+      className="relative min-h-screen py-14 sm:py-20 md:py-24 px-3.5 sm:px-6 md:px-8 bg-[#0c0b0b] text-[#f3f1ec] border-b border-[#f3f1ec15] flex flex-col justify-between overflow-hidden"
       style={{ background: project.bgGradient }}
     >
       {/* Laser slit transition beam */}
       <div className={`w-slit ${slitActive ? "active" : ""}`} />
 
       {/* Top Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#f3f1ec15] pb-6 mb-8">
+      <div className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 border-b border-[#f3f1ec15] pb-4 sm:pb-6 mb-6 sm:mb-8">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-[#d7193a] mb-2 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#d7193a] mb-1.5 uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-[#d7193a]" />
             <span>02 // SELECTED ENTERPRISE SOLUTIONS</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-[-0.05em]">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-[-0.05em]">
             PORTFOLIO.
           </h2>
         </div>
 
         {/* Project Selector Tabs */}
-        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2">
+        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-2 w-full sm:w-auto no-scrollbar">
           {projects.map((p, idx) => {
             const isSelected = currentProject === idx;
             return (
@@ -197,10 +197,10 @@ export default function CinematicWorkStage({ onSelectProjectForInquiry }) {
                 key={p.num}
                 type="button"
                 onClick={() => changeProject(idx)}
-                className={`flex items-center gap-2 py-2 px-3 sm:px-4 text-xs font-mono border transition-all duration-300 rounded whitespace-nowrap ${
+                className={`flex items-center gap-1.5 sm:gap-2 py-1.5 sm:py-2 px-3 sm:px-4 text-xs font-mono border transition-all duration-300 rounded whitespace-nowrap shrink-0 ${
                   isSelected
                     ? "bg-[#d7193a] text-[#f3f1ec] border-[#d7193a] font-bold shadow-[0_0_15px_rgba(215,25,58,0.4)]"
-                    : "border-[#f3f1ec20] text-[#9c9590] hover:text-[#f3f1ec] hover:border-[#f3f1ec60]"
+                    : "bg-[#141212]/70 border-[#f3f1ec20] text-[#9c9590] hover:text-[#f3f1ec] hover:border-[#f3f1ec60]"
                 }`}
               >
                 <span>{p.num}</span>
@@ -215,92 +215,111 @@ export default function CinematicWorkStage({ onSelectProjectForInquiry }) {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center my-auto">
         {/* Left Column: Project Identity & Specs */}
         <div className="lg:col-span-7 flex flex-col justify-center">
-          <div className="flex items-center gap-3 text-xs font-mono text-[#9c9590] mb-2">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-mono text-[#9c9590] mb-2">
             <span className="text-[#d7193a] font-bold">{project.num} // 05</span>
             <span>•</span>
             <span className="uppercase text-[#f3f1ec]">{project.category}</span>
-            <span>•</span>
-            <span>YEAR: {project.year}</span>
+            <span className="hidden sm:inline">•</span>
+            <span className="hidden sm:inline">YEAR: {project.year}</span>
           </div>
 
           <div className="text-xs font-mono text-[#d7193a] uppercase tracking-wider mb-2">
             {project.subtitle}
           </div>
 
-          <h3 className="text-4xl sm:text-6xl md:text-7xl lg:text-7xl font-black tracking-[-0.06em] text-[#f3f1ec] leading-[0.92] mb-6">
+          <h3 className="text-[28px] sm:text-5xl md:text-6xl lg:text-7xl font-black tracking-[-0.05em] sm:tracking-[-0.06em] text-[#f3f1ec] leading-[1.0] sm:leading-[0.92] break-words mb-4 sm:mb-6">
             {project.name}
           </h3>
 
-          <p className="text-base sm:text-lg text-[#9c9590] max-w-2xl leading-relaxed mb-8">
+          <p className="text-sm sm:text-base md:text-lg text-[#9c9590] max-w-2xl leading-relaxed mb-6 sm:mb-8">
             {project.description}
           </p>
 
           {/* Deliverables List */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mb-8 text-xs font-mono">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-lg mb-6 sm:mb-8 text-xs font-mono">
             {project.deliverables.map((item, i) => (
               <div
                 key={i}
                 className="flex items-center gap-2 text-[#f3f1ec]/90 bg-[#161414] border border-[#f3f1ec15] p-2.5 rounded"
               >
-                <span className="text-[#d7193a]">✓</span>
-                <span>{item}</span>
+                <span className="text-[#d7193a] shrink-0">✓</span>
+                <span className="truncate sm:whitespace-normal">{item}</span>
               </div>
             ))}
           </div>
 
           {/* Tech Stack Tags */}
-          <div className="flex flex-wrap items-center gap-2 mb-8">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 mb-6 sm:mb-8">
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="text-[10px] font-mono tracking-wider px-2 py-1 bg-[#1a1818] border border-[#f3f1ec20] text-[#9c9590] rounded"
+                className="text-[10px] font-mono tracking-wider px-2 py-0.5 sm:py-1 bg-[#1a1818] border border-[#f3f1ec20] text-[#9c9590] rounded"
               >
                 {tag}
               </span>
             ))}
           </div>
 
-          {/* Action Buttons: ENQUIRE NOW Button (Replaces Repository Button) */}
-          <div className="flex flex-wrap items-center gap-4">
-            <RollingButton
+          {/* Action Buttons — unified split-button style */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
+            {/* Primary: Enquire Now */}
+            <button
+              type="button"
               onClick={handleEnquire}
-              variant="primary"
-              size="md"
+              className="h-[52px] w-full sm:w-auto sm:min-w-[200px] flex items-stretch bg-[#b0142c] text-[#f3f1ec] border border-transparent rounded-[2px] overflow-hidden active:bg-[#d7193a] transition-colors"
             >
-              ENQUIRE NOW ↗
-            </RollingButton>
-            <RollingButton
+              <span className="flex-1 flex items-center justify-center text-sm font-medium tracking-tight pl-4">
+                ENQUIRE NOW
+              </span>
+              <span className="w-[52px] flex items-center justify-center border-l border-white/20 shrink-0">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
+                </svg>
+              </span>
+            </button>
+            {/* Ghost: View All Capabilities */}
+            <a
               href="#services"
-              variant="ghost"
-              size="md"
+              className="h-[52px] w-full sm:w-auto sm:min-w-[220px] flex items-stretch bg-[#0c0b0b] text-[#f3f1ec] border border-white/25 rounded-[2px] overflow-hidden active:bg-white/10 transition-colors"
             >
-              VIEW ALL CAPABILITIES
-            </RollingButton>
+              <span className="flex-1 flex items-center justify-center text-sm font-medium tracking-tight pl-4">
+                VIEW ALL CAPABILITIES
+              </span>
+              <span className="w-[52px] flex items-center justify-center border-l border-white/20 shrink-0">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                  <line x1="7" y1="17" x2="17" y2="7" />
+                  <polyline points="7 7 17 7 17 17" />
+                </svg>
+              </span>
+            </a>
           </div>
         </div>
 
         {/* Right Column: Visual Stage / Terminal Blueprint */}
-        <div className="lg:col-span-5 flex justify-center items-center">
-          <div className="w-full max-w-[520px] bg-[#121111] border border-[#f3f1ec25] p-6 rounded-xl shadow-2xl relative overflow-hidden font-mono text-xs">
+        <div className="lg:col-span-5 flex justify-center items-center mt-4 lg:mt-0">
+          <div className="w-full max-w-[520px] bg-[#121111] border border-[#f3f1ec25] p-4 sm:p-6 rounded-xl shadow-2xl relative overflow-hidden font-mono text-xs">
             {/* Top Bar */}
-            <div className="flex items-center justify-between pb-3 border-b border-[#f3f1ec15] text-[#9c9590] mb-4">
+            <div className="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-[#f3f1ec15] text-[#9c9590] mb-3 sm:mb-4">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#d7193a]" />
-                <span className="text-[#f3f1ec] font-bold">{project.name} // ARCHITECTURE</span>
+                <span className="text-[#f3f1ec] font-bold text-[11px] sm:text-xs truncate max-w-[200px] sm:max-w-none">
+                  {project.name} // ARCHITECTURE
+                </span>
               </div>
-              <span className="text-[#44e877]">SYSTEM READY</span>
+              <span className="text-[#44e877] text-[10px] sm:text-xs">SYSTEM READY</span>
             </div>
 
             {/* ASCII / Monospace Interactive Terminal View */}
-            <pre className="text-[#44e877] text-[10px] sm:text-[11px] leading-tight overflow-x-auto whitespace-pre font-mono p-3 bg-[#0a0f0c] rounded border border-[#44e877]/20 crt-screen">
+            <pre className="text-[#44e877] text-[9px] sm:text-[10px] md:text-[11px] leading-tight overflow-x-auto whitespace-pre font-mono p-2.5 sm:p-3 bg-[#0a0f0c] rounded border border-[#44e877]/20 crt-screen">
               {project.asciiPreview}
             </pre>
 
             {/* Meta Table */}
-            <div className="mt-4 pt-4 border-t border-[#f3f1ec15] grid grid-cols-2 gap-4 text-[11px]">
+            <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-[#f3f1ec15] grid grid-cols-2 gap-3 sm:gap-4 text-[10px] sm:text-[11px]">
               <div>
                 <span className="text-[#9c9590] block">AUDIENCE</span>
-                <span className="text-[#f3f1ec] font-medium">{project.client}</span>
+                <span className="text-[#f3f1ec] font-medium truncate block">{project.client}</span>
               </div>
               <div>
                 <span className="text-[#9c9590] block">COMPLETION</span>
@@ -308,11 +327,11 @@ export default function CinematicWorkStage({ onSelectProjectForInquiry }) {
               </div>
               <div>
                 <span className="text-[#9c9590] block">SOLUTION TYPE</span>
-                <span className="text-[#d7193a] font-medium">{project.subtitle}</span>
+                <span className="text-[#d7193a] font-medium truncate block">{project.subtitle}</span>
               </div>
               <div>
                 <span className="text-[#9c9590] block">RELIABILITY</span>
-                <span className="text-[#44e877] font-medium">★★★★★ 99.99% UPTIME</span>
+                <span className="text-[#44e877] font-medium">★★★★★ 99.99%</span>
               </div>
             </div>
           </div>
@@ -320,11 +339,11 @@ export default function CinematicWorkStage({ onSelectProjectForInquiry }) {
       </div>
 
       {/* Bottom Progress Bar */}
-      <div className="mt-12 pt-6 border-t border-[#f3f1ec15] flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-[#9c9590]">
-        <div>FULL SPHERE SHOWCASE // ENTERPRISE SYSTEMS</div>
-        <div className="flex items-center gap-2">
-          <span>PROJECT {project.num} OF 05</span>
-          <div className="w-24 h-1 bg-[#f3f1ec20] rounded overflow-hidden">
+      <div className="mt-8 sm:mt-12 pt-4 sm:pt-6 border-t border-[#f3f1ec15] flex flex-wrap items-center justify-between gap-3 text-xs font-mono text-[#9c9590]">
+        <div className="text-[11px] sm:text-xs">FULL SPHERE SHOWCASE // ENTERPRISE SYSTEMS</div>
+        <div className="flex items-center gap-2 ml-auto">
+          <span className="text-[11px] sm:text-xs">PROJECT {project.num} OF 05</span>
+          <div className="w-20 sm:w-24 h-1 bg-[#f3f1ec20] rounded overflow-hidden">
             <div
               className="h-full bg-[#d7193a] transition-all duration-500"
               style={{ width: `${((currentProject + 1) / projects.length) * 100}%` }}

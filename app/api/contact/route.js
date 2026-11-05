@@ -123,32 +123,39 @@ Delivered directly to: ${targetEmail}
     const smtpPass = process.env.GMAIL_APP_PASSWORD || process.env.SMTP_PASS;
 
     if (smtpUser && smtpPass) {
-      const transporter = nodemailer.createTransport({
-        service: "gmail",
-        auth: {
-          user: smtpUser,
-          pass: smtpPass,
-        },
-      });
+      try {
+        const transporter = nodemailer.createTransport({
+          service: "gmail",
+          auth: {
+            user: smtpUser,
+            pass: smtpPass,
+          },
+        });
 
-      await transporter.sendMail({
-        from: `"Full Sphere Transmissions" <${smtpUser}>`,
-        to: targetEmail,
-        replyTo: email,
-        subject,
-        text: plainTextContent,
-        html: htmlContent,
-      });
+        await transporter.sendMail({
+          from: `"Full Sphere Transmissions" <${smtpUser}>`,
+          to: targetEmail,
+          replyTo: email,
+          subject,
+          text: plainTextContent,
+          html: htmlContent,
+        });
 
-      return NextResponse.json({
-        success: true,
-        method: "smtp",
-        message: `Inquiry successfully delivered directly to ${targetEmail}`,
-        ticketId,
-      });
+        console.log(`[Contact API] Direct SMTP email delivered to ${targetEmail}`);
+
+        return NextResponse.json({
+          success: true,
+          method: "smtp",
+          message: `Inquiry successfully delivered directly to ${targetEmail}`,
+          ticketId,
+        });
+      } catch (smtpErr) {
+        console.error("[Contact API] SMTP transmission error, falling back to form relay:", smtpErr);
+      }
     }
 
     // 2. Dispatch via FormSubmit directly to fullspheregroup@gmail.com
+    console.log(`[Contact API] Transmitting via FormSubmit relay to ${targetEmail}...`);
     const formSubmitRes = await fetch(`https://formsubmit.co/ajax/${targetEmail}`, {
       method: "POST",
       headers: {
@@ -173,11 +180,20 @@ Delivered directly to: ${targetEmail}
     });
 
     const formSubmitData = await formSubmitRes.json().catch(() => ({}));
+    console.log("[Contact API] FormSubmit response:", formSubmitRes.status, formSubmitData);
+
+    const isActivationRequired =
+      formSubmitData?.message?.toLowerCase().includes("confirm") ||
+      formSubmitData?.message?.toLowerCase().includes("activate") ||
+      formSubmitData?.success === "false";
 
     return NextResponse.json({
-      success: true,
+      success: formSubmitRes.ok,
       method: "formsubmit",
-      message: `Inquiry successfully forwarded to ${targetEmail}`,
+      needsActivation: isActivationRequired,
+      message: isActivationRequired
+        ? "FormSubmit activation email sent to fullspheregroup@gmail.com. Please check Inbox/Spam to click 'Activate Form'."
+        : `Inquiry transmitted to ${targetEmail}`,
       ticketId,
       detail: formSubmitData.message || null,
     });

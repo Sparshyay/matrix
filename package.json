@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "NEXT_PUBLIC_CONVEX_URL=https://abundant-wildebeest-458.convex.cloud next build",
     "start": "next start",
     "lint": "next lint"

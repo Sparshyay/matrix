@@ -52,8 +52,8 @@ export default function ServicesBooking({ preSelectedProject = null }) {
     },
   ];
 
-  // Configurator Form State (Strictly Zero Estimated Amounts)
-  const [selectedServices, setSelectedServices] = useState(["web-engineering"]);
+  // Configurator Form State (Strictly Zero Estimated Amounts & Zero Default Auto-Selection)
+  const [selectedServices, setSelectedServices] = useState([]);
   const [engagementModel, setEngagementModel] = useState("Full-Cycle Product Build");
   const [timeline, setTimeline] = useState("1 - 2 Months");
   const [formData, setFormData] = useState({
@@ -66,10 +66,14 @@ export default function ServicesBooking({ preSelectedProject = null }) {
   const [ticketId, setTicketId] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
+  const [needsActivation, setNeedsActivation] = useState(false);
 
   // Pre-fill form when user clicks "Enquire Now" on any project
   useEffect(() => {
     if (preSelectedProject) {
+      if (preSelectedProject.serviceType && !selectedServices.includes(preSelectedProject.serviceType)) {
+        setSelectedServices((prev) => [...prev, preSelectedProject.serviceType]);
+      }
       setFormData((prev) => ({
         ...prev,
         projectScope: `Inquiry regarding ${preSelectedProject.name} (${preSelectedProject.subtitle}): We would like to discuss building a similar tailored solution...`,
@@ -80,11 +84,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
   const toggleService = (id) => {
     soundFx.playClick();
     setSelectedServices((prev) =>
-      prev.includes(id)
-        ? prev.length > 1
-          ? prev.filter((item) => item !== id)
-          : prev
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
@@ -119,7 +119,10 @@ export default function ServicesBooking({ preSelectedProject = null }) {
       });
 
       const data = await res.json().catch(() => ({}));
-      if (res.ok && data.success) {
+      if (data.needsActivation) {
+        setNeedsActivation(true);
+        setSubmitMessage(data.message || "Activation required");
+      } else if (res.ok && data.success) {
         setSubmitMessage(data.message || "Inquiry dispatched to fullspheregroup@gmail.com");
       } else {
         setSubmitMessage("Inquiry registered and routed to fullspheregroup@gmail.com");
@@ -136,32 +139,32 @@ export default function ServicesBooking({ preSelectedProject = null }) {
   return (
     <section
       id="services"
-      className="relative min-h-screen py-24 px-4 md:px-8 bg-[#0c0b0b] text-[#f3f1ec] border-b border-[#f3f1ec15]"
+      className="relative min-h-screen py-14 sm:py-20 md:py-24 px-3.5 sm:px-6 md:px-8 bg-[#0c0b0b] text-[#f3f1ec] border-b border-[#f3f1ec15]"
     >
       {/* Section Header */}
-      <div className="flex flex-wrap items-end justify-between gap-4 border-b border-[#f3f1ec15] pb-6 mb-16">
+      <div className="flex flex-wrap items-end justify-between gap-3 sm:gap-4 border-b border-[#f3f1ec15] pb-4 sm:pb-6 mb-10 sm:mb-16">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-[#d7193a] mb-2 uppercase tracking-wider">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#d7193a] mb-1.5 uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-[#d7193a]" />
             <span>03 // CORE CAPABILITIES</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-[-0.05em]">
+          <h2 className="text-3xl sm:text-5xl md:text-7xl font-extrabold tracking-[-0.05em]">
             SERVICES.
           </h2>
         </div>
-        <div className="text-sm font-mono text-[#9c9590] max-w-md">
+        <div className="hidden sm:block text-xs sm:text-sm font-mono text-[#9c9590] max-w-md">
           Aesthetic, elevated engineering. We build modern websites, intuitive mobile apps, conversion-driven UI/UX, and tailored software systems.
         </div>
       </div>
 
       {/* 4 Interactive Service Cards (Highlighted Headings & Streamlined Content) */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-16">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16">
         {servicesList.map((srv) => {
           const isSelected = selectedServices.includes(srv.id);
           return (
             <div
               key={srv.id}
-              className={`group p-6 sm:p-7 rounded-xl border transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
+              className={`group p-4 sm:p-7 rounded-xl border transition-all duration-300 flex flex-col justify-between relative overflow-hidden ${
                 isSelected
                   ? "bg-[#181414] border-[#d7193a] shadow-[0_0_24px_rgba(215,25,58,0.22)]"
                   : "bg-[#111010] border-[#f3f1ec18] hover:border-[#f3f1ec45] hover:bg-[#141212]"
@@ -169,7 +172,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
             >
               <div>
                 {/* Top Number & Tag */}
-                <div className="flex items-center justify-between text-[11px] font-mono mb-3">
+                <div className="flex items-center justify-between text-[11px] font-mono mb-2.5 sm:mb-3">
                   <div className="flex items-center gap-1.5">
                     <span className="w-1.5 h-1.5 bg-[#d7193a] inline-block" />
                     <span className="text-[#d7193a] font-bold tracking-wider">
@@ -182,24 +185,24 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                 </div>
 
                 {/* Strongly Highlighted Card Heading */}
-                <div className="mb-3">
-                  <h3 className="text-2xl sm:text-[26px] font-black tracking-tight text-white group-hover:text-[#d7193a] transition-colors leading-tight">
+                <div className="mb-2 sm:mb-3">
+                  <h3 className="text-xl sm:text-[26px] font-black tracking-tight text-white group-hover:text-[#d7193a] transition-colors leading-tight">
                     {srv.name}
                   </h3>
-                  <div className="w-12 h-[3px] bg-[#d7193a] mt-2.5 group-hover:w-24 transition-all duration-300" />
+                  <div className="w-10 sm:w-12 h-[3px] bg-[#d7193a] mt-2 group-hover:w-20 transition-all duration-300" />
                 </div>
 
                 {/* Concise 1-sentence tagline */}
-                <p className="text-xs sm:text-[13px] text-[#9c9590] mb-4 leading-relaxed font-normal">
+                <p className="text-xs sm:text-[13px] text-[#9c9590] mb-3 sm:mb-4 leading-relaxed font-normal">
                   {srv.tagline}
                 </p>
 
                 {/* Streamlined Capabilities Tags */}
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-1.5 sm:gap-2 mb-4">
                   {srv.capabilities.map((cap, idx) => (
                     <span
                       key={idx}
-                      className="text-[11px] font-mono px-2.5 py-1 bg-[#181616] border border-[#f3f1ec12] rounded text-[#f3f1ec]/90 flex items-center gap-1.5"
+                      className="text-[10px] sm:text-[11px] font-mono px-2 sm:px-2.5 py-1 bg-[#181616] border border-[#f3f1ec12] rounded text-[#f3f1ec]/90 flex items-center gap-1.5"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#d7193a]" />
                       <span>{cap}</span>
@@ -208,7 +211,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                 </div>
               </div>
 
-              {/* Bottom Card Action */}
+              {/* Bottom Card Action (Image 2 style on mobile) */}
               <div className="pt-3 border-t border-[#f3f1ec15] flex items-center justify-end mt-2">
                 <button
                   type="button"
@@ -217,13 +220,27 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                     const el = document.getElementById("contact");
                     if (el) el.scrollIntoView({ behavior: "smooth" });
                   }}
-                  className={`text-[11px] font-mono px-4 py-2 border rounded transition-all duration-300 ${
+                  className={`w-full sm:w-auto h-[48px] sm:h-[40px] flex items-stretch border rounded-[2px] overflow-hidden transition-all text-xs font-mono ${
                     isSelected
-                      ? "bg-[#d7193a] text-white border-[#d7193a] font-bold shadow-[0_0_12px_#d7193a]"
-                      : "border-[#f3f1ec30] text-[#f3f1ec] hover:border-[#f3f1ec] hover:bg-[#f3f1ec10]"
+                      ? "bg-[#b0142c] text-white border-transparent shadow-[0_0_12px_rgba(215,25,58,0.4)]"
+                      : "bg-[#0c0b0b] text-[#f3f1ec] border-white/20 hover:border-white"
                   }`}
                 >
-                  {isSelected ? "✓ SELECTED FOR INQUIRY" : "+ SELECT SERVICE"}
+                  <span className="flex-1 flex items-center justify-center px-4 font-semibold">
+                    {isSelected ? "✓ SELECTED FOR INQUIRY" : "+ SELECT SERVICE"}
+                  </span>
+                  <span className="w-[46px] sm:w-[40px] flex items-center justify-center border-l border-white/20 shrink-0">
+                    <svg className="w-4 h-4 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      {isSelected ? (
+                        <polyline points="20 6 9 17 4 12" />
+                      ) : (
+                        <>
+                          <line x1="12" y1="5" x2="12" y2="19" />
+                          <line x1="5" y1="12" x2="19" y2="12" />
+                        </>
+                      )}
+                    </svg>
+                  </span>
                 </button>
               </div>
             </div>
@@ -234,31 +251,31 @@ export default function ServicesBooking({ preSelectedProject = null }) {
       {/* Direct Contact & Service Inquiries Section (Icons Removed, Pre-filled Form Supported) */}
       <div
         id="contact"
-        className="scroll-mt-24 bg-[#121111] border border-[#f3f1ec20] p-6 sm:p-10 md:p-12 rounded-2xl relative overflow-hidden"
+        className="scroll-mt-20 sm:scroll-mt-24 bg-[#121111] border border-[#f3f1ec20] p-4 sm:p-8 md:p-12 rounded-xl sm:rounded-2xl relative overflow-hidden"
       >
         <div className="max-w-4xl mx-auto">
           {/* Header */}
-          <div className="mb-10 pb-6 border-b border-[#f3f1ec15]">
-            <div className="flex items-center gap-2 text-xs font-mono text-[#d7193a] mb-2 uppercase tracking-wider">
+          <div className="mb-8 sm:mb-10 pb-4 sm:pb-6 border-b border-[#f3f1ec15]">
+            <div className="flex items-center gap-2 text-xs font-mono text-[#d7193a] mb-1.5 uppercase tracking-wider">
               <span className="w-2 h-2 rounded-full bg-[#d7193a]" />
               <span>04 // DIRECT INQUIRIES &amp; CONSULTATION</span>
             </div>
-            <h3 className="text-3xl sm:text-5xl font-extrabold tracking-[-0.04em] text-[#f3f1ec] mb-3">
+            <h3 className="text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-[-0.04em] text-[#f3f1ec] mb-2 sm:mb-3">
               START A CONVERSATION.
             </h3>
-            <p className="text-base text-[#9c9590] leading-relaxed">
+            <p className="text-xs sm:text-base text-[#9c9590] leading-relaxed">
               Tell us about your project requirements or specific service needs. We respond directly within 24 hours to schedule a technical discovery call.
             </p>
           </div>
 
           {!submitted ? (
-            <form onSubmit={handleSubmit} className="space-y-10">
+            <form onSubmit={handleSubmit} className="space-y-8 sm:space-y-10">
               {/* Step 1: Select Desired Services (No Icons) */}
               <div>
-                <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider mb-4">
+                <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider mb-3 sm:mb-4">
                   1. SELECT REQUIRED SERVICES (MULTI-SELECT)
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   {servicesList.map((srv) => {
                     const isChecked = selectedServices.includes(srv.id);
                     return (
@@ -266,7 +283,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                         key={srv.id}
                         type="button"
                         onClick={() => toggleService(srv.id)}
-                        className={`text-left p-4 border rounded transition-all flex items-center justify-between text-xs font-mono ${
+                        className={`text-left p-3.5 sm:p-4 border rounded transition-all flex items-center justify-between text-xs font-mono min-h-[48px] ${
                           isChecked
                             ? "bg-[#1d1616] border-[#d7193a] text-[#f3f1ec] font-bold shadow-[0_0_12px_rgba(215,25,58,0.2)]"
                             : "bg-[#0e0d0d] border-[#f3f1ec15] text-[#9c9590] hover:text-[#f3f1ec] hover:border-[#f3f1ec40]"
@@ -274,7 +291,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                       >
                         <div className="flex items-center gap-2.5">
                           <span
-                            className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center text-[10px] ${
+                            className={`w-3.5 h-3.5 rounded-sm border flex items-center justify-center text-[10px] shrink-0 ${
                               isChecked
                                 ? "bg-[#d7193a] border-[#d7193a] text-white"
                                 : "border-[#9c9590]"
@@ -282,9 +299,9 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                           >
                             {isChecked ? "✓" : ""}
                           </span>
-                          <span>{srv.name}</span>
+                          <span className="truncate">{srv.name}</span>
                         </div>
-                        <span className="text-[11px] text-[#9c9590]">
+                        <span className="text-[10px] sm:text-[11px] text-[#9c9590] shrink-0 ml-2">
                           {srv.num}
                         </span>
                       </button>
@@ -293,10 +310,10 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                 </div>
               </div>
 
-              {/* Step 2: Engagement Model & Timeline (No Prices) */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Step 2: Engagement Model & Timeline */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
                 <div>
-                  <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider mb-3">
+                  <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider mb-2.5 sm:mb-3">
                     2. ENGAGEMENT MODEL
                   </label>
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono">
@@ -313,20 +330,20 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                           soundFx.playClick();
                           setEngagementModel(m);
                         }}
-                        className={`p-3 border rounded text-center transition-colors ${
+                        className={`p-2.5 sm:p-3 border rounded text-center transition-colors min-h-[44px] flex items-center justify-center ${
                           engagementModel === m
                             ? "bg-[#d7193a] text-white border-[#d7193a] font-bold"
                             : "bg-[#0e0d0d] border-[#f3f1ec15] text-[#9c9590] hover:text-white"
                         }`}
                       >
-                        {m}
+                        <span className="text-[11px] sm:text-xs">{m}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider mb-3">
+                  <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider mb-2.5 sm:mb-3">
                     3. TARGET LAUNCH TIMELINE
                   </label>
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono">
@@ -343,26 +360,26 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                           soundFx.playClick();
                           setTimeline(t);
                         }}
-                        className={`p-3 border rounded text-center transition-colors ${
+                        className={`p-2.5 sm:p-3 border rounded text-center transition-colors min-h-[44px] flex items-center justify-center ${
                           timeline === t
                             ? "bg-[#f3f1ec] text-[#0c0b0b] border-[#f3f1ec] font-bold"
                             : "bg-[#0e0d0d] border-[#f3f1ec15] text-[#9c9590] hover:text-white"
                         }`}
                       >
-                        {t}
+                        <span className="text-[11px] sm:text-xs">{t}</span>
                       </button>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* Step 3: Client Details */}
-              <div className="space-y-4">
+              {/* Step 3: Client Details (16px font on mobile to prevent iOS Safari auto-zoom) */}
+              <div className="space-y-3 sm:space-y-4">
                 <label className="block text-xs font-mono text-[#9c9590] uppercase tracking-wider">
                   4. CLIENT CONTACT &amp; PROJECT SPECIFICATIONS
                 </label>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
                   <input
                     type="text"
                     name="name"
@@ -370,7 +387,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                     value={formData.name}
                     onChange={handleInputChange}
                     placeholder="Your Name *"
-                    className="p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-sm font-mono placeholder:text-[#9c9590]/50"
+                    className="p-3 sm:p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-[16px] sm:text-sm font-mono placeholder:text-[#9c9590]/50 min-h-[48px]"
                   />
                   <input
                     type="email"
@@ -379,7 +396,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                     value={formData.email}
                     onChange={handleInputChange}
                     placeholder="Your Email *"
-                    className="p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-sm font-mono placeholder:text-[#9c9590]/50"
+                    className="p-3 sm:p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-[16px] sm:text-sm font-mono placeholder:text-[#9c9590]/50 min-h-[48px]"
                   />
                   <input
                     type="text"
@@ -387,7 +404,7 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                     value={formData.company}
                     onChange={handleInputChange}
                     placeholder="Company / Website URL"
-                    className="p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-sm font-mono placeholder:text-[#9c9590]/50"
+                    className="p-3 sm:p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-[16px] sm:text-sm font-mono placeholder:text-[#9c9590]/50 min-h-[48px]"
                   />
                 </div>
 
@@ -398,36 +415,42 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                   value={formData.projectScope}
                   onChange={handleInputChange}
                   placeholder="Tell us about your project requirements, target platform, technical needs, or existing references..."
-                  className="w-full p-4 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-sm font-mono leading-relaxed placeholder:text-[#9c9590]/50"
+                  className="w-full p-3.5 bg-[#0e0d0d] border border-[#f3f1ec20] focus:border-[#d7193a] text-[#f3f1ec] rounded outline-none text-[16px] sm:text-sm font-mono leading-relaxed placeholder:text-[#9c9590]/50"
                 />
               </div>
 
               {/* Live Inquiry Summary Bar */}
-              <div className="p-4 bg-[#171414] border border-[#d7193a]/40 rounded text-xs font-mono flex flex-wrap items-center justify-between gap-4">
+              <div className="p-3.5 sm:p-4 bg-[#171414] border border-[#d7193a]/40 rounded text-xs font-mono flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                  <span className="text-[#9c9590] block">CURRENT SELECTION:</span>
-                  <span className="text-[#f3f1ec] font-bold">
+                  <span className="text-[#9c9590] block text-[10px] sm:text-xs">CURRENT SELECTION:</span>
+                  <span className="text-[#f3f1ec] font-bold text-xs">
                     {selectedServices.length} Service(s) · {engagementModel} · {timeline}
                   </span>
                 </div>
-                <div className="flex items-center gap-2 text-[#44e877]">
-                  <span className="w-2 h-2 rounded-full bg-[#44e877] animate-pulse" />
-                  <span>DIRECT INQUIRY TO FULLSPHEREGROUP@GMAIL.COM</span>
+                <div className="flex items-center gap-2 text-[#44e877] text-[11px] sm:text-xs">
+                  <span className="w-2 h-2 rounded-full bg-[#44e877] animate-pulse shrink-0" />
+                  <span>DIRECT INQUIRY ROUTING</span>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-2 flex flex-wrap items-center justify-between gap-4">
-                <RollingButton
+              {/* Submit Button — unified split-button style */}
+              <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+                <button
                   type="submit"
-                  variant="primary"
-                  size="lg"
                   disabled={isSubmitting}
-                  className="w-full sm:w-auto"
+                  className="h-[52px] w-full sm:w-auto sm:min-w-[260px] flex items-stretch bg-[#b0142c] text-[#f3f1ec] border border-transparent rounded-[2px] overflow-hidden active:bg-[#d7193a] disabled:opacity-60 transition-colors"
                 >
-                  {isSubmitting ? "TRANSMITTING TO FULL SPHERE..." : "TRANSMIT PROJECT INQUIRY"}
-                </RollingButton>
-                <div className="text-xs font-mono text-[#9c9590]">
+                  <span className="flex-1 flex items-center justify-center text-sm font-medium tracking-tight pl-4">
+                    {isSubmitting ? "TRANSMITTING..." : "TRANSMIT PROJECT INQUIRY"}
+                  </span>
+                  <span className="w-[52px] flex items-center justify-center border-l border-white/20 shrink-0">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <line x1="7" y1="17" x2="17" y2="7" />
+                      <polyline points="7 7 17 7 17 17" />
+                    </svg>
+                  </span>
+                </button>
+                <div className="text-[11px] sm:text-xs font-mono text-[#9c9590] text-center sm:text-right">
                   DIRECT EMAIL:{" "}
                   <a
                     href="mailto:FULLSPHEREGROUP@GMAIL.COM"
@@ -474,18 +497,34 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                 </div>
               </div>
 
-              <div className="pt-4 flex flex-wrap justify-center gap-4">
+              {/* Success Action Buttons — Image 2 split-button style on mobile */}
+              <div className="pt-4 flex flex-col sm:flex-row flex-wrap justify-center gap-4">
+                {/* Mobile: split-button for Transmit Another */}
                 <button
                   type="button"
-                  onClick={() => {
-                    setSubmitted(false);
-                    soundFx.playClick();
-                  }}
-                  className="px-6 py-2.5 bg-[#44e877] text-[#07100a] font-bold text-xs rounded hover:bg-white transition-colors"
+                  onClick={() => { setSubmitted(false); soundFx.playClick(); }}
+                  className="sm:hidden h-[52px] w-full flex items-stretch bg-[#44e877] text-[#07100a] border border-transparent rounded-[2px] overflow-hidden active:bg-white transition-colors"
+                >
+                  <span className="flex-1 flex items-center justify-center text-sm font-semibold tracking-tight pl-4">
+                    TRANSMIT ANOTHER INQUIRY
+                  </span>
+                  <span className="w-[52px] flex items-center justify-center border-l border-black/20 shrink-0">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <line x1="7" y1="17" x2="17" y2="7" />
+                      <polyline points="7 7 17 7 17 17" />
+                    </svg>
+                  </span>
+                </button>
+                {/* Desktop: plain button */}
+                <button
+                  type="button"
+                  onClick={() => { setSubmitted(false); soundFx.playClick(); }}
+                  className="hidden sm:inline-flex px-6 py-2.5 bg-[#44e877] text-[#07100a] font-bold text-xs rounded hover:bg-white transition-colors"
                 >
                   TRANSMIT ANOTHER INQUIRY
                 </button>
 
+                {/* Mobile: split-button for Open Email Client */}
                 <a
                   href={`mailto:FULLSPHEREGROUP@GMAIL.COM?subject=${encodeURIComponent(
                     `[${ticketId}] Project Inquiry from ${formData.name}`
@@ -498,7 +537,32 @@ export default function ServicesBooking({ preSelectedProject = null }) {
                       formData.projectScope
                     }`
                   )}`}
-                  className="px-6 py-2.5 border border-[#44e877]/60 text-[#44e877] font-bold text-xs rounded hover:bg-[#44e877]/10 transition-colors"
+                  className="sm:hidden h-[52px] w-full flex items-stretch bg-[#0c0b0b] text-[#44e877] border border-[#44e877]/40 rounded-[2px] overflow-hidden active:bg-white/5 transition-colors"
+                >
+                  <span className="flex-1 flex items-center justify-center text-sm font-medium tracking-tight pl-4">
+                    OPEN EMAIL CLIENT (BACKUP)
+                  </span>
+                  <span className="w-[52px] flex items-center justify-center border-l border-[#44e877]/30 shrink-0">
+                    <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2">
+                      <line x1="7" y1="17" x2="17" y2="7" />
+                      <polyline points="7 7 17 7 17 17" />
+                    </svg>
+                  </span>
+                </a>
+                {/* Desktop: plain anchor */}
+                <a
+                  href={`mailto:FULLSPHEREGROUP@GMAIL.COM?subject=${encodeURIComponent(
+                    `[${ticketId}] Project Inquiry from ${formData.name}`
+                  )}&body=${encodeURIComponent(
+                    `Client Name: ${formData.name}\nEmail: ${formData.email}\nCompany: ${
+                      formData.company || "N/A"
+                    }\nSelected Services: ${selectedServices.join(
+                      ", "
+                    )}\nEngagement Model: ${engagementModel}\nTimeline: ${timeline}\n\nProject Scope:\n${
+                      formData.projectScope
+                    }`
+                  )}`}
+                  className="hidden sm:inline-flex px-6 py-2.5 border border-[#44e877]/60 text-[#44e877] font-bold text-xs rounded hover:bg-[#44e877]/10 transition-colors"
                 >
                   OPEN EMAIL CLIENT (BACKUP)
                 </a>
